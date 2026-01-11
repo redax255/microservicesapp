@@ -19,10 +19,7 @@ public class EmpruntController {
     }
 
     @PostMapping("/{userId}/{bookId}")
-    public Emprunter emprunterBook(
-            @PathVariable Long userId,
-            @PathVariable Long bookId) {
-
+    public Emprunter emprunterBook(@PathVariable Long userId, @PathVariable Long bookId) {
         return service.createEmprunt(userId, bookId);
     }
 

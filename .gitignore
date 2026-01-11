@@ -1,1 +1,6 @@
-notification-service/target/notification-0.0.1-SNAPSHOT.jar
+book/target/*
+emprunter/target/*
+user/target/*
+eurika/target/*
+gateway/target/*
+notification-service/target/*

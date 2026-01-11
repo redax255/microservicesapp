@@ -119,6 +119,7 @@ services:
       - "8761:8761"
     environment:
       - SPRING_APPLICATION_NAME=eureka-service
+      - SERVER_PORT=8761
     networks:
       - biblio-network
     healthcheck:
@@ -131,19 +132,24 @@ services:
     build: ./gateway
     container_name: gateway-service
     ports:
-      - "9999:9999"
+      - "9999:8080"
     depends_on:
       eureka-server:
         condition: service_healthy
     environment:
       - SPRING_APPLICATION_NAME=gateway-service
+      - SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
     networks:
       - biblio-network
 
   user-service:
     build: ./user
     container_name: user-service
+    ports:
+      - "8082:8082"
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -151,18 +157,25 @@ services:
         condition: service_healthy
     environment:
       - SPRING_APPLICATION_NAME=user-service
+      - SERVER_PORT=8082
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db-user:3306/db_user
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-user:3306/db_user?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JPA_SHOW_SQL=true
     networks:
       - biblio-network
 
   book-service:
     build: ./book
     container_name: book-service
+    ports:
+      - "8081:8081"
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -170,18 +183,25 @@ services:
         condition: service_healthy
     environment:
       - SPRING_APPLICATION_NAME=book-service
+      - SERVER_PORT=8081
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db-book:3306/db_book
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-book:3306/db_book?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JPA_SHOW_SQL=true
     networks:
       - biblio-network
 
   emprunt-service:
     build: ./emprunter
     container_name: emprunt-service
+    ports:
+      - "8083:8083"
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -195,19 +215,28 @@ services:
         condition: service_healthy
     environment:
       - SPRING_APPLICATION_NAME=emprunt-service
+      - SERVER_PORT=8083
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db-emprunter:3306/db_emprunter
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-emprunter:3306/db_emprunter?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JPA_SHOW_SQL=true
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER=org.springframework.kafka.support.serializer.JsonSerializer
+      - SPRING_KAFKA_PRODUCER_KEY_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer
     networks:
       - biblio-network
 
   notification-service:
     build: ./notification-service
     container_name: notification-service
+    ports:
+      - "8084:8084"
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -215,8 +244,16 @@ services:
         condition: service_healthy
     environment:
       - SPRING_APPLICATION_NAME=notification-service
+      - SERVER_PORT=8084
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=notification-group
+      - SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET=earliest
+      - SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER=org.springframework.kafka.support.serializer.JsonDeserializer
+      - SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER=org.apache.kafka.common.serialization.StringDeserializer
+      - SPRING_KAFKA_CONSUMER_PROPERTIES_SPRING_JSON_TRUSTED_PACKAGES=*
     networks:
       - biblio-network
 
